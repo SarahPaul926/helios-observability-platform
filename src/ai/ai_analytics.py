@@ -108,7 +108,7 @@ def ai_summary(anomaly,issues):
                 "status":"Warning",
                 "summary":summary
             }
-    if not issues and anomaly==1:
+    if not issues and anomaly==-1:
          return {
             "status": "Anomaly",
             "summary": (
@@ -116,14 +116,11 @@ def ai_summary(anomaly,issues):
                 "but no specific resource issue was identified."
             )
         }
-    if issues and anomaly==1:
+    if issues and anomaly==-1:
         resources=[]
         for issue in issues:
                     resources.append(issue["resource"])
         resources_text=",".join(resources)
-        summary=(f"A system anomaly has been detected. "
-            f"The affected resource(s) are: {resources_text}. ")
-        summary+=" ".join(issue["message"] for issue in issues)
         summary=(f"An anomaly has been detected in the system." f"The affected resource(s) are: {resources_text}.")
         summary+=" ".join(issue["message"] for issue in issues)
         summary += (
