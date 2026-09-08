@@ -1,5 +1,3 @@
-import psutil
-
 class TelemetrySeralize:
     @staticmethod
     def convert_data(obj):

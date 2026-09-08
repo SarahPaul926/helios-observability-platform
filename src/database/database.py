@@ -17,6 +17,7 @@ def create_Table():
     cursor.execute("""
                 CREATE TABLE IF NOT EXISTS telemetry(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    machine_id TEXT,
                     timeStamp REAL,
                     cpu_usage REAL,
                     ram_usage REAL,
@@ -34,8 +35,9 @@ def save_metric(metric,anomaly):
     conn=get_connection()
     cursor=conn.cursor()
     cursor.execute("""
-        INSERT INTO telemetry(timeStamp,cpu_usage,ram_usage,disk_usage,network_sent,network_received,anomaly_flag) VALUES (?,?,?,?,?,?,?)
+        INSERT INTO telemetry(machine_id,timeStamp,cpu_usage,ram_usage,disk_usage,network_sent,network_received,anomaly_flag) VALUES (?,?,?,?,?,?,?,?)
     """,(
+        metric["machine_id"],
         metric["time"],
         metric['cpu']['cpu_usage'],
         metric['ram']['percent'],

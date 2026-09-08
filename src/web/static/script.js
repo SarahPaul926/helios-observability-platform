@@ -1,3 +1,21 @@
+let machine_id=null;
+async function discoverMachine(){
+    try{
+        const response=await fetch("http://127.0.0.1:5001/identity")
+        if(!response.ok) throw new Error("Couldnt FETCH MACHINE id ");
+        const data= await response.json();
+        machine_id=data.machine_id;
+        console.log("HELIOS MACHINE ID :",machine_id);
+        return true;
+    }
+    catch(error){
+        connectionFailed();
+        console.error(error);
+        machine_id=null;
+        return false;
+    }
+}
+
 // Creating the Charts 
 const ctx=document.getElementById("cpuChart").getContext("2d");
 const cpuChart=new Chart(ctx,{
@@ -116,9 +134,12 @@ async function fetchTelemetry(){
     if(telemetryRunning){
         return;
     }
+    if(!machine_id){
+        return;
+    }
     telemetryRunning = true;
     try{
-        const response=await fetch("/api/metrics/live")
+        const response=await fetch(`https://helios-observability.onrender.com/api/metrics/live?machine_id=${encodeURIComponent(machine_id)}`)
         if(!response.ok) throw new Error("Couldnt FETCH Telemetry!");
         const data= await response.json();
         connectedStatus();
@@ -140,8 +161,11 @@ async function fetchTelemetry(){
 }
 
 async function fetchTelemetryAI(){
+    if(!machine_id){
+        return;
+    }
     try{
-        const response=await fetch("/api/metrics/ai")
+        const response=await fetch(`/api/metrics/ai?machine_id=${encodeURIComponent(machine_id)}`)
         if(!response.ok) throw new Error("Couldnt FETCH error!");
         const data= await response.json();
         updateAiAnalysis(data.ai,data.status);
@@ -153,8 +177,11 @@ async function fetchTelemetryAI(){
 }
 
 async function fetchTelemetryAnalysis(){
+    if(!machine_id){
+        return;
+    }
     try{
-        const response=await fetch("/api/metrics/summary")
+        const response=await fetch(`/api/metrics/summary?machine_id=${encodeURIComponent(machine_id)}`)
         if(!response.ok) throw new Error("Couldnt FETCH error!");
         const data= await response.json();
         connectedStatus();
@@ -355,11 +382,14 @@ function systemMonitoring(){
 }
 
 async function fetchTelemetryHistory(){
+    if(!machine_id){
+        return;
+    }
     try{
         const now=Date.now()/1000;
         const start=now-(24*60*60);
         const end=now;
-        const response=await fetch(`/api/metrics/history?start=${start}&end=${end}&page=1&limit=20`)
+        const response=await fetch(`/api/metrics/history?machine_id=${encodeURIComponent(machine_id)}&start=${start}&end=${end}&page=1&limit=20`)
         if(!response.ok) throw new Error("Couldnt FETCH error!");
         const data= await response.json();
         updateTelmentryTable(data.history);
@@ -387,12 +417,26 @@ function updateTelmentryTable(history){
         tableBody.appendChild(row);
     })
 }
+async function startDashboard(){
+    connectingStatus();
+    const machineFound = await discoverMachine();
+    if(!machineFound){
+        connectionFailed();
+        console.error(
+            "HELIOS Agent is not running on this computer."
+        );
+        return;
+    }
+    console.log(
+        "Starting dashboard for machine:",machine_id);
+    fetchTelemetry();
+    fetchTelemetryAI();
+    fetchTelemetryAnalysis();
+    fetchTelemetryHistory();
+    systemMonitoring();
+}
 
-fetchTelemetry();
-fetchTelemetryAI()
-fetchTelemetryAnalysis();
-fetchTelemetryHistory();
-systemMonitoring();
+startDashboard();
 
 window.addEventListener("beforeunload",()=>{
     clearInterval(ingestionInterval);
