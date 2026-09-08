@@ -8,3 +8,6 @@ __pycache__/
 logs/
 metric_pipeline.csv
 node_modules/
+build/
+dist/
+*.spec
