@@ -28,12 +28,16 @@ def run_server():
 def run_agent():
     while True:
         telemetry=TelemetryEngine.capture_frame()
-        processes=get_process()
+        processes=get_process(limit=10)    
         telemetry["processes"]=processes
         telemetry["machine_id"]=machine_id
-        print("Machine ID",machine_id)
-        print("Collected telemetry:")
-        print(telemetry)
+        print(
+            f"[HELIOS] Sending telemetry | "
+            f"Machine: {machine_id} | "
+            f"CPU: {telemetry['cpu']['cpu_usage']}% | "
+            f"RAM: {telemetry['ram']['percent']}% | "
+            f"Processes: {len(processes)}"
+        )
         try:
             response=requests.post(API_URL,json=telemetry,timeout=30)
             print("Status code:", response.status_code)

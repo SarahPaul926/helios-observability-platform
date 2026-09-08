@@ -192,7 +192,7 @@ def get_metrics():
                 "connection":False,
                 "message":"No Telemetry received from this machine."
             }),404
-        if time.time()-connection_time[machine_id] > 10:
+        if time.time()-connection_time[machine_id] > 20:
             return jsonify({
                 "success":False,
                 "connection":False,
