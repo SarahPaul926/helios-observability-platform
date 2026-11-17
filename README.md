@@ -159,7 +159,7 @@ The HELIOS dashboard will then be available through the Flask server.
 ## HELIOS Agent
 
 The HELIOS Agent collects telemetry from the monitored computer and sends it to the HELIOS backend.
-
+HELIOS-Agent.exe is present in the src/dist
 The repository will provide a pre-built:
 
 ```text
